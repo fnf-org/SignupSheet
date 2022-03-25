@@ -1,5 +1,5 @@
 image:
-  repository: signup
+  repository: signupsheet
   pullPolicy: Never
   tag: "latest"
 
