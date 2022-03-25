@@ -1,3 +1,7 @@
+image:
+  repository: signup
+  pullPolicy: Never
+  tag: "latest"
 
 djangoEnvironment: "production"
 djangoAdminUsername: "test@test.test"
