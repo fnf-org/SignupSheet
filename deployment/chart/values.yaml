@@ -81,7 +81,7 @@ tolerations: []
 
 affinity: {}
 
-djangoEnvironment: "production"
+djangoEnvironment: "development"
 djangoAdminUsername: "test@test.test"
 djangoAdminPassword: "test"
 djangoAdminEmail: "test@test.test"
@@ -93,7 +93,8 @@ djangoEmailPort: ""
 djangoEmailUser: ""
 djangoEmailPassword: ""
 djangoEmailDefaultFrom: "staffsheet@fnf.org"
-  
+djangoTrustedOrigin: "https://mydomain.com"
+
 mariadb:
   auth:
     database: signup

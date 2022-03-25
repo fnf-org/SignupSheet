@@ -14,6 +14,7 @@ djangoEmailPort: ""
 djangoEmailUser: ""
 djangoEmailPassword: ""
 djangoEmailDefaultFrom: "staffsheet@fnf.org"
+djangoTrustedOrigin: "https://mydomain.com"
 
 mariadb:
   auth:

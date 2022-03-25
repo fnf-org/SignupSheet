@@ -8,6 +8,7 @@ data:
   DJANGO_EMAIL_BACKEND: "{{ .Values.djangoEmailBackend }}"
   DJANGO_EMAIL_PORT: "{{ .Values.djangoEmailPort }}"
   DJANGO_DEFAULT_FROM_EMAIL: "{{ .Values.djangoEmailDefaultFrom }}"
+  DJANGO_TRUSTED_ORIGIN: "{{ .Values.djangoTrustedOrigin }}"
 ---
 apiVersion: v1
 kind: Secret
