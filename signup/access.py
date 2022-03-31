@@ -8,25 +8,6 @@ from django.db import transaction
 EA_THRESHOLD = datetime.strptime('07/29/2016 13:00:00+0000', '%m/%d/%Y %H:%M:%S%z')
 LD_THRESHOLD = datetime.strptime('07/31/2016 12:00:00+0000', '%m/%d/%Y %H:%M:%S%z')
 
-# Permissions caching... make these operations a bit less DB intensive. 
-#
-def memoize(func) : 
-    '''Store the permission lookup in memcache'''
-    
-    @functools.wraps(func)
-    def memoizer(*args, **kwargs):
-        key = func.__name__ 
-        for arg in args : 
-            key += arg.__class__.__name__ + str(arg.pk).replace(' ', '_')
-        
-        rval = cache.get(key)
-        if rval == None :
-            rval = func(*args, **kwargs)
-            cache.set(key, rval, 300)
-        return rval   
-    
-    return memoizer
-
 # Test if the job or volunteer model is an early arrival job.
 def is_ea(job):
     return job.start <= EA_THRESHOLD
@@ -43,7 +24,7 @@ def is_ld(job):
 # before the sheet is generally available. This is necessary because 
 # the URL is open to coordinators long before the sheet is ready. 
 #
-@memoize
+@functools.lru_cache
 def global_signup_enable():
     gbs = Global.objects.all()
     if len(gbs) == 0:
@@ -70,7 +51,7 @@ def set_global_signup_enable(en):
 #   - People with staff access  
 #   - People who's email address is listed in a coordinator role.
 #
-@memoize
+@functools.lru_cache
 def is_coordinator(user):
     if user.is_anonymous:
         return False;
@@ -85,7 +66,7 @@ def is_coordinator(user):
 #   - People with staff access 
 #   - Coordinators who's email address is listed in the role given
 #
-@memoize
+@functools.lru_cache
 def is_coordinator_of(user, source):
     if user.is_anonymous:
         return False;
@@ -108,7 +89,7 @@ def is_coordinator_of(user, source):
 #   - If the job is protected a coordinator can signup
 #   - Otherwise, anyone can. 
 #
-def can_signup(user, job):
+def can_signup(user, job, role):
     if user.is_anonymous:
         return False;
 
@@ -119,7 +100,6 @@ def can_signup(user, job):
 
     elif gse == Global.COORDINATOR_ONLY :
         # Coordinator preview.
-        role = Role.objects.get(pk=job.source)
         if role.status == Role.DISABLED :
             if user.is_superuser:
                 return True;

@@ -149,7 +149,7 @@ def jobs(request, title):
         # Determine if the user is able to signup
         entry['needed'] = needed
         if needed > 0 :
-            entry['can_signup'] = can_signup(request.user, job)
+            entry['can_signup'] = can_signup(request.user, job, role)
         else:
             entry['can_signup'] = False
             
@@ -220,7 +220,8 @@ def signup_view(request):
         with transaction.atomic() :
             signup_user = request.user
 
-            if not can_signup(request.user, job):
+            role = Role.objects.get(pk=job.source)
+            if not can_signup(request.user, job, role):
                 print("User cannot signup.")
                 raise Http404()
 
