@@ -1,3 +1,5 @@
+import os 
+
 from locust import HttpUser, task
 
 class HelloWorldUser(HttpUser):
@@ -12,5 +14,8 @@ class HelloWorldUser(HttpUser):
         response = self.client.get('/accounts/login/?next=/jobs/Gate/')
         csrftoken = response.cookies['csrftoken']
         self.client.post('/accounts/login/?next=/jobs/Gate/',
-                         {'username': 'test', 'password': 'test'},
+                         {
+                            'username': os.environ.get('LOCUST_USER', 'test@test.test'), 
+                            'password': os.environ.get('LOCUST_PASSWORD', 'test')
+                         },
                          headers={'X-CSRFToken': csrftoken})
