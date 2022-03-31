@@ -72,7 +72,6 @@ def set_global_signup_enable(en):
 #
 @memoize
 def is_coordinator(user):
-    print(f"MISS! is_coordinator({user})")
     if user.is_anonymous:
         return False;
     
@@ -88,7 +87,6 @@ def is_coordinator(user):
 #
 @memoize
 def is_coordinator_of(user, source):
-    print(f"MISS! is_coordinator_of({user}, {source})")
     if user.is_anonymous:
         return False;
 
