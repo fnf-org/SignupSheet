@@ -63,7 +63,7 @@ def getNavData() :
         navdata.append(ent)
     
     navdata.sort(reverse=True, key=lambda role: role['needed'])
-    cache.set('navdata', navdata, 60)
+    cache.set('navdata', navdata)
     return navdata
 
 def filterNavData(user) :
@@ -103,7 +103,7 @@ def get_status(role, needed_staff, total_staff):
     return status 
 
 @login_required
-def fast_jobs(request, title):
+def jobs(request, title):
     """Just like jobs but faster."""
     navdata = filterNavData(request.user)
 
@@ -205,103 +205,6 @@ def fast_jobs(request, title):
 
 
 @login_required
-def jobs(request, title):
-
-    navdata = filterNavData(request.user)
-
-    found = False
-    for job in navdata : 
-        if job['role'].source.title == title :
-            found = True 
-            break; 
-    
-    if not found : 
-        return redirect('/')
-    
-    # Next and previous roles. 
-    current_job_index = 0
-    for i, item in enumerate(navdata) : 
-        if item['role'].source.pk == title :
-            current_job_index = i
-            break
-
-    next_job = navdata[(current_job_index + 1) % len(navdata)]['role'] 
-    prev_job = navdata[(current_job_index - 1) % len(navdata)]['role'] 
-    
-    # Fetch the role information 
-    roles = Role.objects.filter(source__exact=title)
-    if len(roles) == 0 :
-        # bogus role 
-        return index(request)
-    
-    role = roles[0]
-    # Get status
-    coordinators = Coordinator.objects.filter(source__exact=title)
-    for c in coordinators : 
-        # Fill images... 
-        if c.url == "" : 
-            c.url = settings.COORDINATOR_DEFAULT_IMG
-        elif c.url[0:4] != "http" :
-            c.url = settings.COORDINATOR_STATIC_IMG_URL + c.url
-
-    total_staff = 0;
-    needed_staff = 0;
-
-    # Now find the people that are signed up
-    jobstaff = []
-    for job in Job.objects.filter(source__exact=title).order_by('start') :
-        entry = {}
-        entry['job'] = job
-        entry['volunteers'] = []
-        for volunteer in Volunteer.objects.filter(source__exact=job.source.pk, title__exact=job.title, start__exact=job.start).select_related('user') :
-            vol = {}
-            vol['volunteer'] = f"{volunteer.user.first_name} {volunteer.user.last_name}"
-            vol['comment'] = volunteer.comment
-            if can_delete(request.user, volunteer) :
-                vol['signupid'] = volunteer.id
-            else:
-                vol['signupid'] = None
-                                            
-            entry['volunteers'].append(vol)
-                    
-        # create "empty" volunteers so that rendering shows holes...
-        needed = job.needs - len(entry['volunteers'])
-        for _ in range(needed) :
-            vol = {}
-            vol['volunteer'] = None
-            vol['comment'] = None
-            vol['signupid'] = None 
-            entry['volunteers'].append(vol)
-        
-        # Determine if the user is able to signup
-        entry['needed'] = needed
-        if needed > 0 :
-            entry['can_signup'] = can_signup(request.user, job, role)
-        else:
-            entry['can_signup'] = False
-            
-        jobstaff.append(entry)
-        total_staff += job.needs
-        needed_staff += needed 
-
-    status = get_status(role, total_staff, needed_staff)
-    
-    template_values = {
-        'navdata': navdata,
-        'role': role,
-        'coordinators' : coordinators,
-        'jobs' : jobstaff,
-        'user' : request.user,
-        'total' : total_staff, 
-        'needed' : needed_staff,
-        'status' : status,
-        'coordinator_of' : is_coordinator_of(request.user, role.source),
-        'next' : next_job,
-        'prev' : prev_job,
-    }
-    return render(request, 'signup/jobpage.html', context=template_values)
-
-@login_required
 @require_http_methods(["POST"])
 def signup_view(request):
 
@@ -374,7 +277,10 @@ def signup_view(request):
             if volcount > job.needs :
                 print("Nabbed.")
                 raise IntegrityError("fuck! nabbed!")
-                        
+
+            # Clear view caches.
+            cache.clear()
+
     except IntegrityError:
         print("Nabbed")
         return HttpResponse('Oh no! This signup was nabbed!', status=450)
@@ -411,6 +317,9 @@ def delete(request):
         raise Http404("Can't delete.")
 
     volunteer.delete()
+
+    # Clear view caches.
+    cache.clear()
 
     return HttpResponse('Goodbye.', status=200)
 

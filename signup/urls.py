@@ -26,7 +26,6 @@ urlpatterns = [
     path('eald/', signup.views.csv.eald_csv, name='eald_csv'),
 
     path('jobs/<title>/', signup.views.jobs.jobs, name='jobs'),
-    path('jobsf/<title>/', signup.views.jobs.fast_jobs, name='fast_jobs'),
     path('email/<role>/', signup.views.jobs.email_list, name='email_list'),
     path('signup/', signup.views.jobs.signup_view, name='signup'),
     path('delete/', signup.views.jobs.delete, name='delete'),

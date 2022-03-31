@@ -11,7 +11,7 @@ def email_suggest(request, query=""):
     users = cache.get('user_suggest_cache')
     if users is None:
         users = list(map(lambda u: u.email, User.objects.all()))
-        cache.set('user_suggest_cache', users, 300)
+        cache.set('user_suggest_cache', users)
 
     if query.strip() == "":
         items = []

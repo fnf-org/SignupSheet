@@ -11,6 +11,7 @@ from django.contrib.auth.models import User
 from django.forms import ValidationError
 from django.utils.translation import gettext as _
 from django.contrib.auth.decorators import login_required
+from django.core.cache import cache
 
 from signup.models import Volunteer
 
@@ -34,6 +35,7 @@ class UserCreateWithEmailForm(UserCreationForm):
             user.last_name = ""
 
         if commit:
+            cache.clear()
             user.save()
         return user
     
@@ -77,7 +79,8 @@ def user(request, template_name='registration/userprefs.html'):
             else:
                 user.last_name = ""
             user.save()
-            
+            cache.clear()
+
     form = UserPreferencesForm({'name' : user.first_name + ' ' + user.last_name, 'email': user.email})
     return render(request, template_name, {
         'form': form,
