@@ -76,7 +76,134 @@ def filterNavData(user) :
             if is_coordinator_of(user, role['role'].source) :
                 rval.append(role)
     return rval
-            
+
+def get_status(role, needed_staff, total_staff):
+    """ Fill enablement and status data """
+    status = {}
+    status['enable'] = global_signup_enable()
+    status['color'] = 'black'
+    status['text'] = 'This is the status'
+    if status['enable'] == Global.COORDINATOR_ONLY :
+        status['color'] = 'red'
+        status['text'] = '''The staff sheet is not yet enabled for general signups.
+                If you're a coordinator you will be able to fill your protected jobs.
+                Otherwise please wait for an announcement indicating the general availability of the staff sheet.'''
+    elif status['enable'] == Global.AVAILABLE : 
+        if role.status == Role.DISABLED : 
+            status['color'] = 'red'
+            status['text'] = '''Signups for this job have been temporarily disabled until essential jobs are filled.'''
+        else : 
+            if needed_staff > 0 :
+                status['text'] = "There are " + str(total_staff) + " jobs and " + str(needed_staff) + " left to fill."
+            else :
+                status['text'] = "All " + str(total_staff) + " available shifts are taken!"
+    elif status['enable'] == Global.CLOSED :
+        status['color'] = 'red'
+        status['text'] = 'Signups are closed. See you next year!'
+    return status 
+
+@login_required
+def fast_jobs(request, title):
+    """Just like jobs but faster."""
+    navdata = filterNavData(request.user)
+
+    found = False
+    for job in navdata : 
+        if job['role'].source.title == title :
+            found = True 
+            break; 
+    
+    if not found : 
+        return redirect('/')
+    
+    # Next and previous roles. 
+    current_job_index = 0
+    for i, item in enumerate(navdata) : 
+        if item['role'].source.pk == title :
+            current_job_index = i
+            break
+
+    next_job = navdata[(current_job_index + 1) % len(navdata)]['role'] 
+    prev_job = navdata[(current_job_index - 1) % len(navdata)]['role'] 
+
+    # Fetch the role information 
+    roles = Role.objects.filter(source__exact=title)
+    if len(roles) == 0:
+        raise Http404("That role was not found.")
+
+    role = roles[0]
+    is_coordinator = is_coordinator_of(request.user, role.source)
+    coordinators = []
+
+    coordinators = Coordinator.objects.filter(source__exact=title)
+    for c in coordinators : 
+        # Fill images... 
+        if c.url == "" : 
+            c.url = settings.COORDINATOR_DEFAULT_IMG
+        elif c.url[0:4] != "http" :
+            c.url = settings.COORDINATOR_STATIC_IMG_URL + c.url
+
+    volunteers = list(
+        Volunteer.objects.filter(source__exact=role.source.pk).order_by('start', 'title').select_related('user')
+    )
+
+    jobstaff = []
+    volnumber = 0
+    total_staff = 0 
+    needed_staff = 0
+
+    for job in Job.objects.filter(source__exact=title).order_by('start', 'title'):
+        entry = {}
+        entry['job'] = job 
+        entry['volunteers'] = []
+
+        for volunteer in (v for v in volunteers if v.title == job.title and v.start == job.start):
+            vol = {}
+            vol['volunteer'] = f"{volunteer.user.first_name} {volunteer.user.last_name}"
+            vol['comment'] = volunteer.comment
+            if can_delete(request.user, volunteer) :
+                vol['signupid'] = volunteer.id
+            else:
+                vol['signupid'] = None                                            
+            entry['volunteers'].append(vol)
+
+        needed = job.needs - len(entry['volunteers'])
+        for _ in range(needed) :
+            vol = {}
+            vol['volunteer'] = None
+            vol['comment'] = None
+            vol['signupid'] = None 
+            entry['volunteers'].append(vol)
+
+        # Determine if the user is able to signup
+        entry['needed'] = needed
+        if needed > 0 :
+            entry['can_signup'] = can_signup(request.user, job, role)
+        else:
+            entry['can_signup'] = False
+
+        jobstaff.append(entry)
+        total_staff += job.needs
+        needed_staff += needed 
+
+    status = get_status(role, total_staff, needed_staff)
+
+    template_values = {
+        'navdata': navdata,
+        'role': role,
+        'coordinators' : coordinators,
+        'jobs' : jobstaff,
+        'user' : request.user,
+        'total' : total_staff, 
+        'needed' : needed_staff,
+        'status' : status,
+        'coordinator_of' : is_coordinator,
+        'next' : next_job,
+        'prev' : prev_job,
+    }
+    return render(request, 'signup/jobpage.html', context=template_values)
+
+
 @login_required
 def jobs(request, title):
 
@@ -101,7 +228,6 @@ def jobs(request, title):
     next_job = navdata[(current_job_index + 1) % len(navdata)]['role'] 
     prev_job = navdata[(current_job_index - 1) % len(navdata)]['role'] 
     
-        
     # Fetch the role information 
     roles = Role.objects.filter(source__exact=title)
     if len(roles) == 0 :
@@ -109,6 +235,7 @@ def jobs(request, title):
         return index(request)
     
     role = roles[0]
+    # Get status
     coordinators = Coordinator.objects.filter(source__exact=title)
     for c in coordinators : 
         # Fill images... 
@@ -156,30 +283,9 @@ def jobs(request, title):
         jobstaff.append(entry)
         total_staff += job.needs
         needed_staff += needed 
-    
-    # Fill enablement and status data 
-    status = {}
-    status['enable'] = global_signup_enable()
-    status['color'] = 'black'
-    status['text'] = 'This is the status'
-    if status['enable'] == Global.COORDINATOR_ONLY :
-        status['color'] = 'red'
-        status['text'] = '''The staff sheet is not yet enabled for general signups.
-                If you're a coordinator you will be able to fill your protected jobs.
-                Otherwise please wait for an announcement indicating the general availability of the staff sheet.'''
-    elif status['enable'] == Global.AVAILABLE : 
-        if role.status == Role.DISABLED : 
-            status['color'] = 'red'
-            status['text'] = '''Signups for this job have been temporarily disabled until essential jobs are filled.'''
-        else : 
-            if needed_staff > 0 :
-                status['text'] = "There are " + str(total_staff) + " jobs and " + str(needed_staff) + " left to fill."
-            else :
-                status['text'] = "All " + str(total_staff) + " available shifts are taken!"
-    elif status['enable'] == Global.CLOSED :
-        status['color'] = 'red'
-        status['text'] = 'Signups are closed. See you next year!'
 
+    status = get_status(role, total_staff, needed_staff)
+    
     template_values = {
         'navdata': navdata,
         'role': role,
