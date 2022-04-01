@@ -26,7 +26,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 DEBUG = mode.DEBUG
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = secrets.token_urlsafe(64)
+SECRET_KEY = mode.SECRET_KEY
 
 ALLOWED_HOSTS = mode.ALLOWED_HOSTS
 
