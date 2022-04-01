@@ -114,7 +114,7 @@ COORDINATOR_DEFAULT_IMG = COORDINATOR_STATIC_IMG_URL + 'gearhead.png'
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'TIMEOUT': 600,
+        'TIMEOUT': 60,
     }
 }
 
