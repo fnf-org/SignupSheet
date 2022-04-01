@@ -2,6 +2,7 @@ import csv
 
 from django.http import HttpResponse
 from django.contrib.auth.decorators import user_passes_test
+from django.db.models import Q
 
 from signup.access import is_coordinator, EA_THRESHOLD, LD_THRESHOLD, is_ea, is_ld
 from signup.models import Coordinator, Job, Role, Volunteer, Global
