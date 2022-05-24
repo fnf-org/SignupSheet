@@ -2,6 +2,7 @@ from __future__ import print_function
 
 from datetime import datetime, timedelta
 import re
+import urllib.parse
 
 from antlr4 import InputStream, CommonTokenStream, ParseTreeWalker
 from antlr4.error.ErrorListener import ErrorListener
@@ -26,8 +27,8 @@ class SchemaBuilder(StaffSheetListener) :
             self.context.append(source)
 
     def enterRole(self, ctx):
-        title = self.__strToken(ctx.QUOTE())
-
+        title = urllib.parse.quote(self.__strToken(ctx.QUOTE()), safe=' ')
+        
         inputstream = ctx.start.getInputStream()
         start = ctx.getChild(3).start.start
         stop = ctx.getChild(3).stop.stop
