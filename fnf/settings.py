@@ -108,7 +108,7 @@ STATICFILES_DIRS = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-COORDINATOR_STATIC_IMG_URL = 'https://storage.googleapis.com/rock-scanner-5666/Coordinator%20Pics/'
+COORDINATOR_STATIC_IMG_URL = 'https://storage.googleapis.com/fnf-apps-static/staffsheet/Coordinator%20Pics/'
 COORDINATOR_DEFAULT_IMG = COORDINATOR_STATIC_IMG_URL + 'gearhead.png'
 
 CACHES = {
