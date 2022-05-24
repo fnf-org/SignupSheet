@@ -21,4 +21,4 @@ python3 ./manage.py createsuperuser --no-input --email $DJANGO_ADMIN_EMAIL --use
 #    done
 #fi
 
-python3 ./manage.py runserver 0.0.0.0:8000
+python3 ./manage.py runserver --insecure 0.0.0.0:8000
