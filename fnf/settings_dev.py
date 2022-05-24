@@ -9,7 +9,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 DEBUG = True
 
-SECRET_KEY = secrets.token_urlsafe(64)
+SECRET_KEY = 'YAJeOTGEU0gT_QlAj9ZwQF06yy46TrNUa2tdKVNC_PYIVVEpTKuJTZXiyTXBOmO2vSCy-Ck_7yL-BAAqx-8rfQ'
 ALLOWED_HOSTS = []
 DATABASES = {
     'default': {
