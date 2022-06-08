@@ -20,7 +20,8 @@ class SignupButton extends React.Component {
     this.state = { 
       signup: true,
       emails: [],
-      comment: ''
+      comment: '',
+      user: null
     };
     this.handleClick = this.handleClick.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -36,34 +37,40 @@ class SignupButton extends React.Component {
 
   handleSubmit(e) {
     e.preventDefault();
-    const csrftoken = Cookies.get('csrftoken');
-    fetch('/signup/', {
-      method: 'POST',
-      credentials: 'same-origin',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': csrftoken
-      },
-      body: JSON.stringify({
-        'user': this.state.user,
-        'jobid': this.props.job,
-        'comment': this.state.comment 
-      })
-    }).then(response => {
-      if (!response.ok) {
-        window.confirm("There was an error signing up. Someone might have got there first or you're already busy at this time.")
-      }
-      location.reload()
-    }).catch(error => {
-      window.confirm("Something went wrong!")
-      location.reload()
-    })
+    if (this.state.user && this.state.emails.length === 0) {
+      window.alert("The user you are trying to signup was not found.")
+    }
+    else {
+      const csrftoken = Cookies.get('csrftoken');
+      fetch('/signup/', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrftoken
+        },
+        body: JSON.stringify({
+          'user': this.state.user,
+          'jobid': this.props.job,
+          'comment': this.state.comment 
+        })
+      }).then(response => {
+        if (!response.ok) {
+          window.confirm("There was an error signing up. Someone might have got there first or you're already busy at this time.")
+        }
+        location.reload()
+      }).catch(error => {
+        window.confirm("Something went wrong!")
+        location.reload()
+      })  
+    }
   }
 
   updateSuggest(value) {
     if (value === "") {
       return
     }
+    this.setState({user: value})
     fetch("/email_suggest/q=" + encodeURIComponent(value))
       .then(res => res.json())
       .then(

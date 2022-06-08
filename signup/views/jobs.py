@@ -216,6 +216,7 @@ def signup_view(request):
             'comment': data['comment'],
             'user': data.get('user'), # user is optional
         }
+        print("Signup for user:", data)
     except Exception as e: 
         print("Fucked request.")
         raise Http404()
@@ -238,10 +239,12 @@ def signup_view(request):
                 if not is_coordinator_of(request.user, job.source):
                     print("Non-coordinator third party signup.")
                     raise Http404()
-                for user in User.objects.filter(email__exact=data['user']):
-                    signup_user = user
-                    break
-
+                found = list(User.objects.filter(email__exact=data['user']))
+                if len(found) == 0:
+                    print("No such user!")
+                    raise Http404("No such user.")
+                signup_user = found[0]
+                
             # Create a Volunteer with form data 
             # We need the natural key from the job... this way 
             # if the job changes in a non-meaningful way this volunteer
