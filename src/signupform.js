@@ -130,7 +130,7 @@ class SignupButton extends React.Component {
               hideCaret
               hideEmptyPopup
               filter="contains"
-              placeholder="Search for email..."
+              placeholder="Search for user..."
               data={this.state.emails}
               onChange={this.updateSuggest}
           />

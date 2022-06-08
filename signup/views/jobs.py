@@ -1,4 +1,4 @@
-import csv, codecs, io, json
+import csv, codecs, io, json, re
 from operator import imod
 
 from django.http import HttpResponse
@@ -236,6 +236,9 @@ def signup_view(request):
                 raise Http404()
 
             if data['user'] is not None:
+                m = re.search(r'<(\S+)>$', data['user'])
+                if m is not None:
+                    data['user'] = m.group(1)
                 if not is_coordinator_of(request.user, job.source):
                     print("Non-coordinator third party signup.")
                     raise Http404()

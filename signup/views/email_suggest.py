@@ -10,14 +10,15 @@ from django.core.cache import cache
 def email_suggest(request, query=""):
     users = cache.get('user_suggest_cache')
     if users is None:
-        users = list(map(lambda u: u.email, User.objects.all()))
+        users = list(map(lambda u: (f'"{u.first_name} {u.last_name}" <{u.email}>', f'"{u.first_name} {u.last_name}" <{u.email}>'.lower()), 
+            User.objects.all()))
         cache.set('user_suggest_cache', users)
 
     if query.strip() == "":
         items = []
     else:
-        items = list(email for email in users if query in email)[0:20]
-    
+        items = list(user[0] for user in users if query.lower() in user[1])[0:20]
+
     return JsonResponse({
         'items': items
     })
