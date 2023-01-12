@@ -2,10 +2,14 @@
 
 set -e 
 
+echo STARTING Signup Application 
+
 # Source the environment from the runtime.
 if [ -f /runtime/config ]; then 
     . /runtime/config
 fi
+
+printenv 
 
 # Apply migrations, if necessary
 python3 ./manage.py migrate 
