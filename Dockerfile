@@ -10,7 +10,7 @@ RUN npm run build
 FROM docker.io/ubuntu:20.04
 
 RUN apt update -y && DEBIAN_FRONTEND=noninteractive apt install -y python3-pip tzdata libmariadb-dev
-RUN pip install django mariadb
+RUN pip install django
 
 COPY . /app
 RUN mkdir /db
@@ -20,4 +20,3 @@ RUN pip install -r requirements.txt
 COPY --from=builder /dist /app/dist 
 
 CMD /bin/sh /app/entrypoint.sh
-EXPOSE 8000
