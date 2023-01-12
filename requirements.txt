@@ -1,5 +1,6 @@
-django
+sqlparse==0.2.4
 antlr4-python3-runtime==4.7.2
 pytz
 pymongo[tls,srv]>=3.13,<4
 djongo
+django
