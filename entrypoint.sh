@@ -4,6 +4,8 @@ set -e
 
 echo STARTING Signup Application 
 
+ls -l /runtime 
+
 # Source the environment from the runtime.
 if [ -f /runtime/config ]; then 
     . /runtime/config
