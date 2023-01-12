@@ -1,6 +1,5 @@
 django
 antlr4-python3-runtime==4.7.2
 pytz
-pymongo>=3.13,<4
-pymongo[srv]>=3.13,<4
+pymongo[tls,srv]>=3.13,<4
 djongo
