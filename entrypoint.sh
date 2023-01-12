@@ -18,6 +18,7 @@ fi
 printenv 
 
 # Apply migrations, if necessary
+echo Apply migrations...
 python3 ./manage.py migrate 
 
 # FIXME: Determine if initialization is needed. 
@@ -28,4 +29,5 @@ if /bin/false; then
 fi
 
 # Run the app
+echo Run the app!
 python3 ./manage.py runserver --insecure 0.0.0.0:${PORT}
