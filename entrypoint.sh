@@ -1,4 +1,4 @@
-#! /bin/sh 
+#! /bin/bash 
 
 set -e 
 
@@ -9,9 +9,11 @@ ls -la /runtime
 
 # Source the environment from the runtime.
 if [ -f /runtime/config ]; then 
+    echo Sourcing runtime configuration... 
     . /runtime/config
 fi
 
+. /runtime/config
 printenv 
 
 # Apply migrations, if necessary
