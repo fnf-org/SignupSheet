@@ -13,6 +13,15 @@ SECRET_KEY = 'YAJeOTGEU0gT_QlAj9ZwQF06yy46TrNUa2tdKVNC_PYIVVEpTKuJTZXiyTXBOmO2vS
 ALLOWED_HOSTS = []
 DATABASES = {
     'default': {
+        'ENGINE': 'djongo',
+        'NAME': 'signup',
+        'CLIENT': {
+            'host': 'localhost',
+            'username': 'root',
+            'password': 'example',
+        }
+    },
+    'sqlite': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     },

@@ -1,3 +1,6 @@
 django
 antlr4-python3-runtime==4.7.2
 mysqlclient
+pytz
+pymongo>=3.13,<4
+djongo
