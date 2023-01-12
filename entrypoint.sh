@@ -10,6 +10,7 @@ ls -la /runtime
 # Source the environment from the runtime.
 if [ -f /runtime/config ]; then 
     echo Sourcing runtime configuration... 
+    cat /runtime/config
     . /runtime/config
 fi
 
