@@ -7,7 +7,6 @@ echo STARTING Signup container.
 # Source the environment from the runtime.
 if [ -f /runtime/config ]; then 
     echo Sourcing runtime /runtime/config
-    cat /runtime/config
     . /runtime/config
 fi
 
