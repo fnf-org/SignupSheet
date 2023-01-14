@@ -2,6 +2,7 @@
 Dev-Mode settings. Focus on convenience. 
 """
 
+import os
 import secrets 
 from pathlib import Path 
 
@@ -14,11 +15,9 @@ ALLOWED_HOSTS = []
 DATABASES = {
     'default': {
         'ENGINE': 'djongo',
-        'NAME': 'signup',
+        'NAME': os.environ.get('DJANGO_DB_NAME'),
         'CLIENT': {
-            'host': 'localhost',
-            'username': 'root',
-            'password': 'example',
+            'host': os.environ.get('DJANGO_DB_HOST'),
         }
     },
     'sqlite': {

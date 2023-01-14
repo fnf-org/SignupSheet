@@ -1,5 +1,7 @@
 from __future__ import unicode_literals
 
+import uuid 
+
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import ForeignKey
@@ -66,6 +68,8 @@ class Role(models.Model):
 class Coordinator(models.Model):
     '''A coordinator in one role.''' 
 
+    models.UUIDField()
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     source = ForeignKey(Source, on_delete=models.CASCADE)
     name = CharField(max_length=64)
     email = EmailField()
@@ -74,6 +78,7 @@ class Coordinator(models.Model):
 class Job(models.Model):
     '''An individual job''' 
 
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     source = ForeignKey(Source, on_delete=models.CASCADE)
     title = CharField(max_length=64)
     start = DateTimeField() 
@@ -97,6 +102,8 @@ class Volunteer(models.Model):
     class Meta :
         index_together = ['source', 'title', 'start']
         
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = ForeignKey(User, on_delete=models.DO_NOTHING)
     
     # The natural key of Job 

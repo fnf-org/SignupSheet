@@ -212,7 +212,7 @@ def signup_view(request):
         data = json.loads(request.body)
         print('Request data:', data)
         data = {
-            'jobid': int(data['jobid']),
+            'jobid': data['jobid'],
             'comment': data['comment'],
             'user': data.get('user'), # user is optional
         }
@@ -306,7 +306,7 @@ def delete(request):
         data = json.loads(request.body)
         print('Request data:', data)
         data = {
-            'signup': int(data['signup']),
+            'signup': data['signup'],
         }
     except Exception as e: 
         print("Fucked request.")

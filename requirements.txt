@@ -4,3 +4,4 @@ pytz
 pymongo[tls,srv]>=3.13,<4
 djongo
 django
+uuid
