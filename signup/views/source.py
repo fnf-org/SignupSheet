@@ -9,7 +9,6 @@ from django.db.utils import IntegrityError
 from django.db.models import Sum
 from django.core.cache import cache
 
-from signup.models import Source, Role, Coordinator, Job, Global, Volunteer
 from signup.parser.StaffSheetLexer import StaffSheetLexer
 from signup.parser.StaffSheetListener import StaffSheetListener
 from signup.parser.StaffSheetParser import StaffSheetParser
@@ -19,6 +18,8 @@ from signup.access import is_coordinator, is_coordinator_of, global_signup_enabl
 
 from datetime import timedelta
 
+from signup.models import Role, Coordinator, Job, Global, Volunteer
+import signup.gql_wrapper as gql 
 
 class SkipperForm(forms.Form):
     title = forms.CharField(label='title')
@@ -191,23 +192,16 @@ def source_all(request, template_name='source/source_bulkedit.html'):
     if request.method=='POST':
         form = BulkSourceForm(request.POST)
         if form.is_valid():
-            try: 
-                with transaction.atomic() :
-                    # Remake ALL source ojbects based on top source.
-                    Source.objects.all().delete()
-        
-                    # Now build it.
-                    build_all(form.cleaned_data['text'], request.user)
-            except IntegrityError as e:
-                print("Transaction error:", e)
-
+            gql.clear_source()
+            build_all(form.cleaned_data['text'], request.user)
             cache.clear()
-            return redirect('source_list')
+            return redirect('source_all')
         else:
             return render(request, template_name, {'form':form})
     else:
         ## Fetch and unify the source 
-        sources = Source.objects.order_by('title')
+        #sources = Source.objects.order_by('title')
+        sources = gql.get_sources()
         text = ""
         for source in sources : 
             text += 'role "' + source.title + "\" (\n" + source.text + "\n)\n\n"

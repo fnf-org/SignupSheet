@@ -1,6 +1,6 @@
 from __future__ import print_function 
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import re
 import urllib.parse
 
@@ -9,15 +9,18 @@ from antlr4.error.ErrorListener import ErrorListener
 from antlr4.error.ErrorStrategy import DefaultErrorStrategy
 from antlr4.error.Errors import ParseCancellationException, InputMismatchException
 
-from signup.models import Source, Role, Coordinator, Job
+from signup.models import Coordinator, Job
 from signup.parser.StaffSheetLexer import StaffSheetLexer
 from signup.parser.StaffSheetListener import StaffSheetListener
 from signup.parser.StaffSheetParser import StaffSheetParser
     
+import signup.gql_wrapper as gql 
+
 class SchemaBuilder(StaffSheetListener) :
     
-    epoch = datetime.strptime('07/27/2016 00:00:00 UTC', '%m/%d/%Y %H:%M:%S %Z')
-        
+    #epoch = datetime.strptime('07/27/2016 00:00:00 UTC', '%m/%d/%Y %H:%M:%S %Z')
+    epoch = datetime.now(timezone.utc)
+
     def __init__(self, user, source=None):
         self.rows = []
         self.stack = []
@@ -34,33 +37,45 @@ class SchemaBuilder(StaffSheetListener) :
         stop = ctx.getChild(3).stop.stop
         text = inputstream.getText(start, stop)
         
-        src = Source(title=title, text=text, 
-                    owner=self.user.first_name + ' ' + self.user.last_name,
-                    ) 
-        src.save()
+        # Returns the source ID
+
+        src = gql.create_source(gql.Source(
+            id=None,
+            title=title,
+            text=text,
+            owner=self.user.first_name + ' ' + self.user.last_name,
+            version=datetime.now(timezone.utc).isoformat('T'),
+        ))
+
         self.context.append(src)
 
     def exitRole(self, ctx):
         self.context.pop()
         
     def exitRolefragment(self, ctx):
-        role = Role()
-        role.source = self.context[-1]
-        role.description = self.stack.pop()
-        role.contact = self.stack.pop()
+        source = self.context[-1]
+        description = self.stack.pop()
+        contact = self.stack.pop()
         status = self.stack.pop()
         if status == 'active' :
-            role.status = Role.ACTIVE
+            status = "ACTIVE"
         elif status == 'disabled' :
-            role.status = Role.DISABLED
+            status = "DISABLED"
         else :
-            role.status = Role.WORKING
-        role.save() 
+            status = "WORKING"
+
+        role = gql.Role(
+            id=None,
+            status=status,
+            source=source,
+            contact=contact,
+        )
+        gql.create_role(role)
 
         # Now that the role exists, we can create the other rows
         # which have FK constraints 
-        for row in self.rows :
-            row.save()
+        for row in self.rows:
+            gql.create_job(row)
 
         self.rows = []
 
@@ -68,12 +83,14 @@ class SchemaBuilder(StaffSheetListener) :
         self.stack.append(ctx.getChild(1).getText())
 
     def exitCoordinator(self, ctx):
-        coord = Coordinator()
-        coord.source = self.context[-1]
-        coord.name = self.__strToken(ctx.QUOTE(0))
-        coord.email = self.__strToken(ctx.QUOTE(1))
-        coord.url = self.__strToken(ctx.QUOTE(2))
-        self.rows.append(coord)
+        pass
+        #coord = Coordinator()
+        #coord.source = self.context[-1]
+        #coord.name = self.__strToken(ctx.QUOTE(0))
+        #coord.email = self.__strToken(ctx.QUOTE(1))
+        #coord.url = self.__strToken(ctx.QUOTE(2))
+        ### XXX: Coordinators not loading. 
+        #self.rows.append(coord)
 
     def exitContact(self, ctx):
         self.stack.append(self.__strToken(ctx.QUOTE()))
@@ -82,19 +99,27 @@ class SchemaBuilder(StaffSheetListener) :
         self.stack.append(self.__strToken(ctx.QUOTE()))
         
     def exitJob(self, ctx):
-        for slot in self.stack.pop() :
-            job = Job()
-            job.source = self.context[-1]
-            job.title = self.__strToken(ctx.QUOTE(0))
-            job.description = self.__strToken(ctx.QUOTE(1))
-            job.start = slot['begin']
-            job.end = slot['end']
-            job.needs = 1            
+        for slot in self.stack.pop():
+            source = self.context[-1]
+            title = self.__strToken(ctx.QUOTE(0))
+            description = self.__strToken(ctx.QUOTE(1))
+            start = slot['begin']
+            end = slot['end']
+            needs = 1            
             if ctx.needs() != None :
-                job.needs = self.__intToken(ctx.needs().NUMBER())
-            job.protected = False
-            if ctx.getChild(0).getText() == 'protected' :
-                job.protected = True
+                needs = self.__intToken(ctx.needs().NUMBER())
+            protected = ctx.getChild(0).getText() == 'protected'
+
+            job = gql.Job(
+                id=None, 
+                source=source, 
+                title=title, 
+                start=start, 
+                end=end, 
+                description=description, 
+                needs=needs, 
+                protected=protected)
+
             self.rows.append(job)
                            
     def exitTimespec(self, ctx):
@@ -188,7 +213,7 @@ class SchemaBuilder(StaffSheetListener) :
             m = int(matcher.group(2))
         
         realtime = self.epoch + timedelta(days=d, minutes=m, hours=h)
-        return realtime            
+        return realtime   
 
 class ReportedException(ParseCancellationException) :
     def __init__(self, s, l) :

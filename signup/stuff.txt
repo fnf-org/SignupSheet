@@ -1,0 +1,20 @@
+role "Cafe Bruxia" (
+status active
+coordinator "Sweet Coffee" "swee@coffee.com" "sweet_coffee.jpg"
+
+contact "sweet@coffee.com"
+description {
+<p>Keep the cafe going - making sure that the coffee is a plenty, the ice tea for the next shift is brewing, and the sugar, cream and tea tray is full.  And please prevent anyone who is not SS staff or Cafe Bruxia from using the coffee and hot water machines.  
+<p><b>Meet at the main lodge</b>
+<br>
+}
+
+protected job "Barista" needs 2 starts Friday noon for 4 hours {Check coffee hourly, clean up.}
+protected job "Barista" needs 2 starts Saturday 6:00am for 3 hours {Setup and make coffee.}
+job "Barista" needs 3 starts Saturday 9:00am for 3 hours {Replenish cafe twice hourly.}
+job "Barista" needs 2 starts Saturday Noon for 4 hours {Replenish cafe hourly.}
+job "Barista" needs 2 starts Saturday 4:00pm for 3 hours {Replenish cafe hourly.}
+job "Barista" needs 2 starts Saturday 10:00pm for 4 hours {Replenish cafe hourly.}
+job "Barista" needs 3 starts Sunday 6:00am for 3 hours {Replenish cafe twice hourly; make more coffee for the hoards.}
+job "Barista" needs 3 starts Sunday 9:00am for 3 hours {Replenish twice hourly, clean up.}
+)
