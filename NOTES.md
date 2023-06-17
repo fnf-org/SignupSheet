@@ -6,19 +6,25 @@ These are my notes from my proof of concept implementation of the Staff Sheet us
 
 The current code has the Staff Sheet schema partly implemented in Strapi. The application can:
 
-1. Use the whole sheet editor to clear and load the Source/Role/Job parts 
-1. Coordinators don't work for no reason 
+1. Use the whole sheet editor to clear and load the Source/Role/Job/Coordinator parts 
+1. Display a simplified job page 
 
-This version uses a generated client, which provides a way of accessing backend objects that's
-a bit like ORM. It reduces a lot (but not all of) tedious glue code. Here's how to generate the client code: 
+This is probably as far as I'm going to take functionality. The GraphQL implementation is interesting 
+because you can do so much work in a single query. The `clade` query loads an entire page worth of 
+data to display. 
+
+The generated code can be created by: 
 
 ```
 rm -rf signup/graphql_client && ariadne-codegen client
 ``` 
 
+The generated classes are pretty handy. They're made a bit less convenient by the Strapi schema which
+has both content and metadata, increasing the depth of useful stuff. 
+
 ### Next Steps 
 
-Build out more of the back end access. 
+Build an authentication flow. 
 
 ## Issues 
 
@@ -37,3 +43,7 @@ The solution is to implement transactional components inside of Strapi and make 
 1. `unsignup` -- Delete a user job 
 
 This is a leaky abstraction, some of the core logic of an app has to be implemented on the server side. 
+
+### File Storage 
+
+If this is to be hosted in a cloud native way a cloud storage plugin is required. 

@@ -109,3 +109,84 @@ mutation create_job(
             }
         }
 }
+
+query all_coordinators { 
+    coordinators {
+        data { 
+            id 
+        }
+    }
+}
+
+mutation delete_coordinator($id: ID!) {
+    deleteCoordinator(id: $id) {
+        data {
+            id
+        }
+    }
+}
+
+mutation create_coordinator(
+        $source: ID!,
+        $name: String!, 
+        $email: String!, 
+        $url: String!, 
+    ) {
+        createCoordinator( data: {
+            source: $source, 
+            name: $name, 
+            email: $email, 
+            url: $url, 
+        }) {
+            data {
+                id
+            }
+        }
+}
+
+query get_clade(
+        $title: String!
+    ) { 
+        coordinators (
+            filters: { source: { title: { eq: $title }}}
+        ){
+            data {
+                id
+                attributes {
+                    name
+                    email
+                    url
+                }
+            }
+        }
+
+        jobs (
+            filters: { source: { title: { eq: $title }}}
+        ){
+            data {
+                id
+                attributes {
+                    title
+                    start
+                    end
+                    description
+                    needs
+                    protected
+                }
+            }
+        }
+
+        staffroles (
+            filters: { source: { title: { eq: $title }}}
+        ){
+            data {
+                id
+                attributes {
+                    status
+                    contact
+                    description
+                }
+            }
+        }
+
+}

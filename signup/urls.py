@@ -4,7 +4,7 @@ from signup.views import jobs
 from signup.views import email_suggest
 from signup.views.react import react_jobs
 from signup.views.email_suggest import email_suggest
-
+from signup.views.simple_job import index as simple_index
 import signup.views.csv 
 import signup.views.source 
 import signup.views.registration 
@@ -34,5 +34,5 @@ urlpatterns = [
 
     path('email_suggest/q=<query>', email_suggest, name='email_suggest'),
 
-    path('', jobs.index, name='index'),
+    path('', simple_index, name='index'),
 ]

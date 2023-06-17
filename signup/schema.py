@@ -46,7 +46,7 @@ class SchemaBuilder(StaffSheetListener) :
             owner=self.user.first_name + ' ' + self.user.last_name,
         )
 
-        self.context.append(src.create_source.data.id)
+        self.context.append(int(src.create_source.data.id))
 
     def exitRole(self, ctx):
         self.context.pop()
@@ -89,6 +89,12 @@ class SchemaBuilder(StaffSheetListener) :
         self.stack.append(ctx.getChild(1).getText())
 
     def exitCoordinator(self, ctx):
+        gqlh.client.create_coordinator(
+            source = self.context[-1],
+            name = self.__strToken(ctx.QUOTE(0)),
+            email = self.__strToken(ctx.QUOTE(1)),
+            url = self.__strToken(ctx.QUOTE(2)),
+        )
         pass
         #coord = Coordinator()
         #coord.source = self.context[-1]
@@ -115,6 +121,7 @@ class SchemaBuilder(StaffSheetListener) :
             if ctx.needs() != None :
                 needs = self.__intToken(ctx.needs().NUMBER())
             protected = ctx.getChild(0).getText() == 'protected'
+
 
             job = JobInput(
                 source=source, 

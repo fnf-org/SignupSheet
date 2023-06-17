@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}	
+	<div class="row">
+	<div class="col-md-3">
+	</div>
+	<div class="col-md-9">
+		<div class="row"> 
+			<div class="col-md-6">
+			    <h1 style="display: inline;">{{ title }}</h1>
+			</div>
+		</div>
+		<div class="row coordinators">
+			<div class="col-xs-12">
+				<h3>Coordinators</h3>
+			</div>
+		</div>
+		<div class="row coordinators">
+		{% for coordinator in coordinators %}
+			<div class="coordinator col-xs-4 col-sm-3 col-md-3">
+				<div class="coordinator-picture">
+					<center>
+						<img class="img-responsive" src="{{coordinator.url}}"></img>
+					</center>
+				</div>
+				<div class="coordinator-name">
+					{{ coordinator.name }}
+				</div>
+			</div>
+		{% endfor %}	
+		</div>
+		<div class="row roledescription">
+			<div class="col-xs-12">
+				{% if role.contact != '' %}
+					<p><b>Contact: {{ role.contact }}</b></p>
+				{% endif %}
+				{{ role.description | safe }}
+			</div>
+		</div>
+		{% for job in jobs %} 
+			<div class="job">
+				<div class="visible-md-block visible-lg-block visible-xl-block">
+					<span class="jobtitle">{{ job.title }}</span>
+					<span class="jobtimes">{{ job.start }} to {{ job.end }}</span>
+				</div>
+				<div class="visible-xs-block visible-sm-block">
+					<span class="jobtitle">{{ job.title }}</span>
+					<br>
+					<span class="jobtimes">{{ job.start }} to {{ job.end }}</span>
+				</div>
+				{% if job.needed > 0 %}
+					{% if role.contact != '' %}
+						<a href="mailto:{{role.contact}}?subject={{job.job.title |urlencode}}%20Shift%20{{ job.job.start | date:"l P" | urlencode}}" target="_blank">
+					{% endif %}
+					{% if job.protected %}
+						<i>Please contact the coordinator to sign up for this job.</i><br>
+					{% endif %}
+					{% if role.contact != '' %}
+						</a>
+					{% endif %}
+				{% endif %}
+				<span class="jobdescription">{{ job.description | safe }}</span>
+				<div class="joblist">
+				</div>
+			</div>	
+		{% endfor %}
+
+	</div>
+{% endblock %}
+
+{% block components %}	
+<script src="/static/js/main.js"></script>	
+{% endblock %}
+
