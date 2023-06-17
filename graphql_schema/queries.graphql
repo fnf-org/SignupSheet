@@ -1,0 +1,111 @@
+
+query all_sources { 
+    sources {
+        data { 
+            id 
+            attributes {
+                title text version owner
+            }
+        }
+    }
+}
+
+mutation delete_source($id: ID!) {
+    deleteSource(id: $id) {
+        data {
+            id
+        }
+    }
+}
+
+mutation create_source(
+        $title: String!, 
+        $text: String!, 
+        $version: DateTime!,
+        $owner: String!
+    ) {
+        createSource( data: {
+            title: $title, 
+            text: $text,
+            version: $version, 
+            owner: $owner
+        }) {
+            data {
+                id
+            }
+        }
+}
+
+query all_roles { 
+    staffroles {
+        data { 
+            id 
+        }
+    }
+}
+
+mutation delete_role($id: ID!) {
+    deleteStaffrole(id: $id) {
+        data {
+            id
+        }
+    }
+}
+
+mutation create_role(
+        $status: ENUM_STAFFROLE_STATUS!, 
+        $source: ID!,
+        $contact: String!,
+        $description: String!
+    ) {
+        createStaffrole( data: {
+            status: $status, 
+            source: $source,
+            contact: $contact, 
+            description: $description
+        }) {
+            data {
+                id
+            }
+        }
+}
+
+query all_jobs { 
+    jobs {
+        data { 
+            id 
+        }
+    }
+}
+
+mutation delete_job($id: ID!) {
+    deleteJob(id: $id) {
+        data {
+            id
+        }
+    }
+}
+
+mutation create_job(
+        $source: ID!,
+        $title: String!, 
+        $start: DateTime!, 
+        $end: DateTime!, 
+        $description: String!, 
+        $needs: Int!, 
+        $protected: Boolean!,
+    ) {
+        createJob( data: {
+            source: $source, 
+            title: $title, 
+            start: $start, 
+            end: $end, 
+            description: $description, 
+            needs: $needs, 
+            protected: $protected,
+        }) {
+            data {
+                id
+            }
+        }
+}

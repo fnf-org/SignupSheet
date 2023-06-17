@@ -1,0 +1,9 @@
+[tool.ariadne-codegen]
+schema_path = "graphql_schema/schema.graphql"
+#queries_path = "graphql_schema/schema.graphql"
+queries_path = "graphql_schema/queries.graphql"
+target_package_path = "signup"
+target_package_name = "graphql_client"
+#base_client_name = "BaseClient"
+#base_client_file_path = "./venv-signup/lib/python3.10/site-packages/ariadne_codegen/client_generators/dependencies/base_client.py"
+async_client = false

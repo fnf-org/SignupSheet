@@ -9,12 +9,12 @@ from antlr4.error.ErrorListener import ErrorListener
 from antlr4.error.ErrorStrategy import DefaultErrorStrategy
 from antlr4.error.Errors import ParseCancellationException, InputMismatchException
 
-from signup.models import Coordinator, Job
 from signup.parser.StaffSheetLexer import StaffSheetLexer
 from signup.parser.StaffSheetListener import StaffSheetListener
 from signup.parser.StaffSheetParser import StaffSheetParser
     
-import signup.gql_wrapper as gql 
+import signup.gql_helpers as gqlh
+from signup.graphql_client import SourceInput, StaffroleInput, JobInput
 
 class SchemaBuilder(StaffSheetListener) :
     
@@ -38,16 +38,15 @@ class SchemaBuilder(StaffSheetListener) :
         text = inputstream.getText(start, stop)
         
         # Returns the source ID
-
-        src = gql.create_source(gql.Source(
-            id=None,
+        
+        src = gqlh.client.create_source(
             title=title,
             text=text,
-            owner=self.user.first_name + ' ' + self.user.last_name,
             version=datetime.now(timezone.utc).isoformat('T'),
-        ))
+            owner=self.user.first_name + ' ' + self.user.last_name,
+        )
 
-        self.context.append(src)
+        self.context.append(src.create_source.data.id)
 
     def exitRole(self, ctx):
         self.context.pop()
@@ -64,18 +63,25 @@ class SchemaBuilder(StaffSheetListener) :
         else :
             status = "WORKING"
 
-        role = gql.Role(
-            id=None,
+        gqlh.client.create_role(
             status=status,
             source=source,
             contact=contact,
+            description=description,
         )
-        gql.create_role(role)
 
         # Now that the role exists, we can create the other rows
         # which have FK constraints 
         for row in self.rows:
-            gql.create_job(row)
+            gqlh.client.create_job(
+                source=row.source, 
+                title=row.title, 
+                start=row.start, 
+                end=row.end, 
+                description=row.description, 
+                needs=row.needs, 
+                protected=row.protected
+            )
 
         self.rows = []
 
@@ -110,15 +116,15 @@ class SchemaBuilder(StaffSheetListener) :
                 needs = self.__intToken(ctx.needs().NUMBER())
             protected = ctx.getChild(0).getText() == 'protected'
 
-            job = gql.Job(
-                id=None, 
+            job = JobInput(
                 source=source, 
                 title=title, 
                 start=start, 
                 end=end, 
                 description=description, 
                 needs=needs, 
-                protected=protected)
+                protected=protected
+            )
 
             self.rows.append(job)
                            

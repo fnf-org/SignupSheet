@@ -4,14 +4,21 @@ These are my notes from my proof of concept implementation of the Staff Sheet us
 
 ## Current State 
 
-The current code has the Staff Sheet schema implemented in Strapi. The application can:
+The current code has the Staff Sheet schema partly implemented in Strapi. The application can:
 
 1. Use the whole sheet editor to clear and load the Source/Role/Job parts 
 1. Coordinators don't work for no reason 
 
+This version uses a generated client, which provides a way of accessing backend objects that's
+a bit like ORM. It reduces a lot (but not all of) tedious glue code. Here's how to generate the client code: 
+
+```
+rm -rf signup/graphql_client && ariadne-codegen client
+``` 
+
 ### Next Steps 
 
-The API access is ad-hoc so I could learn GraphQL. A better implementation would use generated code to make access less tedious. 
+Build out more of the back end access. 
 
 ## Issues 
 

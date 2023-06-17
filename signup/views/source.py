@@ -19,7 +19,7 @@ from signup.access import is_coordinator, is_coordinator_of, global_signup_enabl
 from datetime import timedelta
 
 from signup.models import Role, Coordinator, Job, Global, Volunteer
-import signup.gql_wrapper as gql 
+import signup.gql_helpers as gql 
 
 class SkipperForm(forms.Form):
     title = forms.CharField(label='title')
@@ -201,10 +201,10 @@ def source_all(request, template_name='source/source_bulkedit.html'):
     else:
         ## Fetch and unify the source 
         #sources = Source.objects.order_by('title')
-        sources = gql.get_sources()
+        sources = gql.client.all_sources()
         text = ""
-        for source in sources : 
-            text += 'role "' + source.title + "\" (\n" + source.text + "\n)\n\n"
+        for source in sources.sources.data: 
+            text += 'role "' + source.attributes.title + "\" (\n" + source.attributes.text + "\n)\n\n"
         
         form = BulkSourceForm({'text': text})
         return render(request, template_name, {'form':form})
