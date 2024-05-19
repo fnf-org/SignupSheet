@@ -12,6 +12,7 @@ if [ "$DJANGO_DEBUG" = "True" ]; then
     export DJANGO_SUPERUSER_PASSWORD=test 
 fi 
 
+. ./venv/bin/activate
 python3 ./manage.py migrate 
 python3 ./manage.py createsuperuser --no-input --email $DJANGO_ADMIN_EMAIL --username $DJANGO_ADMIN_USERNAME || true
 
