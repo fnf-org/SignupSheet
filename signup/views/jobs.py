@@ -186,7 +186,7 @@ def jobs(request, title):
         total_staff += job.needs
         needed_staff += needed 
 
-    status = get_status(role, total_staff, needed_staff)
+    status = get_status(role, needed_staff, total_staff)
 
     template_values = {
         'navdata': navdata,
