@@ -9,7 +9,7 @@ RUN npm run build
 
 FROM docker.io/ubuntu:24.04
 
-RUN apt update -y && DEBIAN_FRONTEND=noninteractive apt install -y python3-pip tzdata libmariadb-dev python3-venv
+RUN apt update -y && DEBIAN_FRONTEND=noninteractive apt install -y python3-pip tzdata libmariadb-dev python3-venv mariadb-client build-essential pkg-config
 
 COPY . /app
 RUN mkdir /db
