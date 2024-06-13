@@ -76,7 +76,7 @@ class Coordinator(models.Model):
     url = URLField()
 
 class Job(models.Model):
-    '''An individual job''' 
+    '''An individual job (volunteer shift) in a role''' 
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     source = ForeignKey(Source, on_delete=models.CASCADE)
@@ -116,4 +116,5 @@ class Volunteer(models.Model):
     # --- 
     
     comment = TextField()
+
    

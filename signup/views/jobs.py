@@ -56,7 +56,7 @@ def getNavData() :
             jobcount = 0
             
         personcount = Volunteer.objects.filter(source__exact=role.source.pk).count()
-        ent['needed'] = jobcount - personcount
+        ent['needed'] = jobcount - personcount # sometimes incorrect, theories above
         ent['jobs'] = jobcount
         ent['status'] = role.status
         ent.update(badgeFor(role, jobcount, personcount))
@@ -189,13 +189,13 @@ def jobs(request, title):
     status = get_status(role, needed_staff, total_staff)
 
     template_values = {
-        'navdata': navdata,
+        'navdata': navdata, # .needed is sometimes incorrect
         'role': role,
         'coordinators' : coordinators,
         'jobs' : jobstaff,
         'user' : request.user,
-        'total' : total_staff, 
-        'needed' : needed_staff,
+        'total' : total_staff,  # correct
+        'needed' : needed_staff, # correct
         'status' : status,
         'coordinator_of' : is_coordinator,
         'next' : next_job,

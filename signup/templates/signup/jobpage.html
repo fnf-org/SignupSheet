@@ -19,7 +19,7 @@
 						<li class="list-group-item">
 							<img title="{{r.alt}}" src="{% static r.pic %}" height=20></img>
 							<a href="{% url "jobs" title=r.role.source.pk %}">{{r.role.source.pk}}</a>
-							<br/><small>{{r.needed}} volunteer(s) needed</small>
+							<br/><small>{{r.needed}} volunteer(s) needed </small>
 						</li>
 					{% endif %}
 				{% endfor %}
@@ -48,7 +48,7 @@
 									<a href="{% url "jobs" title=r.role.source.pk %}">
 										<img src="{% static r.pic %}" height=15></img>
 										{{r.role.source.pk}}
-										<br/><small>{{r.needed}} volunteer(s) needed</small>
+										<br/><small>{{r.needed}} volunteer(s) needed </small>
 									</a>
 								</li>
 							{% endif %}

@@ -91,10 +91,11 @@ def get_job_summary(request) :
         jobcount = Job.objects.filter(source__exact=role.source.pk).aggregate(Sum('needs'))['needs__sum']
         if jobcount is None : 
             jobcount = 0            
+        # may need to update personcount here like in getNavData()
         personcount = Volunteer.objects.filter(source__exact=role.source.pk).count()
         navdata.append({
             'role': role.pk, 
-            'needed': jobcount - personcount, 
+            'needed': jobcount - personcount,
             'jobs': jobcount, 
             'status': role.status,
             'is_coordinator': is_coordinator_of(request.user, role.source)          
