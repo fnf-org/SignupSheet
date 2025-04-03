@@ -1,0 +1,7 @@
+FROM ubuntu:24.04
+
+RUN apt-get update && apt-get upgrade -y && apt install -y python@3.12 node@18 sqllite && \
+    sqllite start
+
+PUBLISH 5432
+PUBLISH 8000
